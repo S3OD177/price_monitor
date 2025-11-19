@@ -1,36 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Competitor Price Monitoring SaaS MVP
 
-## Getting Started
+A production-ready MVP for monitoring competitor prices with Salla and Trendyol integrations.
 
-First, run the development server:
+## Features
+
+- 🔐 **Authentication**: Email/password via Supabase Auth
+- 🏪 **Salla Integration**: OAuth2 flow for store connection and product sync
+- 🛍️ **Trendyol Integration**: API credentials for Seller account connection
+- 📦 **Product Management**: View and manage products from connected stores
+- 🔗 **Competitor Tracking**: Add manual competitor URLs per product
+- 🔄 **Sync System**: Manual and scheduled product synchronization
+- 📊 **Dashboard**: Overview of stores, products, and sync status
+
+## Tech Stack
+
+- **Frontend**: Next.js 16 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS 4
+- **Database**: Supabase (PostgreSQL)
+- **Auth**: Supabase Auth
+- **UI Components**: Radix UI
+
+## Setup
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure Environment Variables
+
+Create `.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+SALLA_CLIENT_ID=your-salla-client-id
+SALLA_CLIENT_SECRET=your-salla-client-secret
+SALLA_REDIRECT_URI=http://localhost:3000/integrations/salla/callback
+```
+
+### 3. Setup Database
+
+Run the SQL schema in your Supabase project:
+
+```bash
+# Copy contents of supabase/schema.sql to Supabase SQL Editor and execute
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+price_monitor/
+├── app/
+│   ├── actions/           # Server actions
+│   ├── auth/              # Authentication
+│   ├── dashboard/         # Dashboard
+│   ├── integrations/      # Salla & Trendyol
+│   ├── products/          # Product management
+│   └── page.tsx           # Landing page
+├── components/
+│   ├── ui/                # UI components
+│   └── main-nav.tsx       # Navigation
+├── lib/
+│   ├── supabase/          # Supabase clients
+│   ├── sallaClient.ts     # Salla API
+│   └── trendyolClient.ts  # Trendyol API
+└── supabase/
+    └── schema.sql         # Database schema
+```
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+1. **Register**: Create an account at `/register`
+2. **Connect Store**: Go to `/integrations` and connect Salla or Trendyol
+3. **Sync Products**: Click "Sync Now" on dashboard to fetch products
+4. **Add Competitor Links**: Go to product details and add competitor URLs
+5. **Monitor**: Track competitor prices (future feature)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API Integrations
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Salla
+- OAuth2 authorization flow
+- Merchant info and product endpoints
+- Token refresh handling
 
-## Deploy on Vercel
+### Trendyol
+- Supplier API with Basic Auth
+- Product listing with pagination
+- Stock and price synchronization
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Security
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Row Level Security (RLS) on all tables
+- Multi-tenant data isolation
+- Secure credential storage
+- Protected routes via middleware
+
+## Build
+
+```bash
+npm run build
+```
+
+## License
+
+MIT

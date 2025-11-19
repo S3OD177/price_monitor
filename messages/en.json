@@ -1,0 +1,78 @@
+{
+    "Landing": {
+        "nav": {
+            "features": "Features",
+            "howItWorks": "How it Works",
+            "pricing": "Pricing",
+            "signIn": "Sign In",
+            "getStarted": "Get Started"
+        },
+        "hero": {
+            "badge": "✨ Now supporting Salla & Trendyol Integration",
+            "title": "Monitor Competitor Prices",
+            "titleHighlight": "Maximize Your Margins",
+            "description": "Stop losing sales to competitors. Automatically track prices, get real-time alerts, and optimize your pricing strategy with our advanced monitoring tool.",
+            "startTrial": "Start Free Trial",
+            "viewDemo": "View Demo",
+            "dashboardPreview": "Interactive Dashboard Preview"
+        },
+        "trustedBy": "Trusted by forward-thinking e-commerce brands",
+        "features": {
+            "title": "Everything you need to dominate",
+            "subtitle": "Powerful features designed to give you the competitive edge in a crowded market.",
+            "multiPlatform": {
+                "title": "Multi-Platform Support",
+                "desc": "Seamlessly connect and monitor products across Salla, Trendyol, and more platforms coming soon."
+            },
+            "analytics": {
+                "title": "Real-time Analytics",
+                "desc": "Visualize price trends over time and make data-driven decisions to optimize your margins."
+            },
+            "sync": {
+                "title": "Instant Sync",
+                "desc": "Keep your product catalog up to date with a single click. No manual data entry required."
+            },
+            "secure": {
+                "title": "Secure & Reliable",
+                "desc": "Enterprise-grade security ensures your data is safe. 99.9% uptime guarantee."
+            },
+            "alerts": {
+                "title": "Smart Alerts",
+                "desc": "Get notified immediately when a competitor changes their price or goes out of stock."
+            },
+            "insights": {
+                "title": "Competitor Insights",
+                "desc": "Deep dive into competitor strategies and uncover hidden opportunities for growth."
+            }
+        },
+        "howItWorks": {
+            "title": "Start monitoring in minutes",
+            "subtitle": "No complex setup. No credit card required. Just results.",
+            "step1": {
+                "title": "Sign Up Free",
+                "desc": "Create your account and access the dashboard instantly."
+            },
+            "step2": {
+                "title": "Connect Store",
+                "desc": "Link your Salla or Trendyol store securely in one click."
+            },
+            "step3": {
+                "title": "Start Tracking",
+                "desc": "Add competitor links and watch the insights roll in."
+            }
+        },
+        "cta": {
+            "title": "Ready to outsmart your competition?",
+            "desc": "Join hundreds of e-commerce store owners who are already using PriceMonitor to increase their sales and margins.",
+            "button": "Get Started for Free",
+            "subtext": "No credit card required • 14-day free trial • Cancel anytime"
+        },
+        "footer": {
+            "desc": "The ultimate price monitoring tool for modern e-commerce businesses. Track, analyze, and optimize with ease.",
+            "product": "Product",
+            "company": "Company",
+            "legal": "Legal",
+            "rights": "© 2024 PriceMonitor Inc. All rights reserved."
+        }
+    }
+}
