@@ -9,6 +9,8 @@ import { useState } from "react"
 
 interface StoreCardProps {
     store: any // Type this properly if possible
+    locale?: string
+    onDisconnect?: () => void
 }
 
 export function StoreCard({ store }: StoreCardProps) {

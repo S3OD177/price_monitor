@@ -1,20 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exchangeSallaCode, SallaClient } from '@/lib/salla/client';
-import { createSessionClient } from '@/lib/appwrite/server';
+import { createAdminClient } from '@/lib/appwrite/server';
 import { APPWRITE_CONFIG } from '@/lib/appwrite/config';
 import { ID, Query } from 'node-appwrite';
 
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const code = searchParams.get('code');
+    const state = searchParams.get('state'); // This contains the userId
     const error = searchParams.get('error');
 
     if (error) {
-        return NextResponse.redirect(new URL(`/dashboard?error=${error}`, request.url));
+        return NextResponse.redirect(new URL(`/dashboard/integrations?error=${error}`, request.url));
     }
 
     if (!code) {
-        return NextResponse.redirect(new URL('/dashboard?error=no_code', request.url));
+        return NextResponse.redirect(new URL('/dashboard/integrations?error=no_code', request.url));
+    }
+
+    if (!state) {
+        return NextResponse.redirect(new URL('/dashboard/integrations?error=no_state', request.url));
     }
 
     try {
@@ -26,23 +31,23 @@ export async function GET(request: NextRequest) {
         const userInfo = await salla.getMerchantInfo();
         const merchant = userInfo.data.merchant;
 
-        // 3. Save to Appwrite
-        const { databases, account } = await createSessionClient();
-        const user = await account.get();
+        // 3. Save to Appwrite using Admin Client (state contains userId)
+        const { databases } = await createAdminClient();
+        const userId = state; // The state parameter contains the user ID
 
         // Check if store exists
         const existingStores = await databases.listDocuments(
             APPWRITE_CONFIG.DATABASE_ID,
             APPWRITE_CONFIG.COLLECTIONS.STORES,
             [
-                Query.equal('userId', user.$id),
+                Query.equal('userId', userId),
                 Query.equal('platform', 'salla'),
                 Query.equal('externalStoreId', String(merchant.id))
             ]
         );
 
         const storeData = {
-            userId: user.$id,
+            userId: userId,
             platform: 'salla',
             name: merchant.name || merchant.username,
             externalStoreId: String(merchant.id),
@@ -67,10 +72,10 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        return NextResponse.redirect(new URL('/dashboard?success=salla_connected', request.url));
+        return NextResponse.redirect(new URL('/dashboard/integrations?success=salla_connected', request.url));
 
     } catch (err: any) {
         console.error("Salla Callback Error:", err);
-        return NextResponse.redirect(new URL(`/dashboard?error=${encodeURIComponent(err.message)}`, request.url));
+        return NextResponse.redirect(new URL(`/dashboard/integrations?error=${encodeURIComponent(err.message)}`, request.url));
     }
 }

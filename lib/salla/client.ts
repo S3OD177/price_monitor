@@ -99,7 +99,7 @@ export function getSallaAuthUrl(state: string): string {
         client_id: SALLA_CONFIG.CLIENT_ID,
         response_type: "code",
         redirect_uri: SALLA_CONFIG.REDIRECT_URI,
-        scope: "offline_access products.read products.read_only user.read_only", // Adjust scopes as needed
+        scope: "offline_access products.read", // Only request essential scopes
         state,
     });
     return `${SALLA_AUTH_BASE}/auth?${params.toString()}`;

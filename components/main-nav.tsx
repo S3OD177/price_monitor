@@ -20,7 +20,7 @@ export function MainNav() {
                             Dashboard
                         </Link>
                         <Link
-                            href="/integrations"
+                            href="/dashboard/integrations"
                             className="transition-colors hover:text-foreground/80 text-foreground/60"
                         >
                             Integrations

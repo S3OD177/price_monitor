@@ -8,5 +8,6 @@ export const APPWRITE_CONFIG = {
         COMPETITORS: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_COMPETITORS || "Competitors",
         PRICES: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_PRICES || "PriceHistory",
         STORES: process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_STORES || "Stores",
+        SCRAPING_REPORTS: "scraping_reports",
     }
 }

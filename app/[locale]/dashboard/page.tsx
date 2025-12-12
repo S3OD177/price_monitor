@@ -1,137 +1,155 @@
-import { createSessionClient } from "@/lib/appwrite/server";
-import { APPWRITE_CONFIG } from "@/lib/appwrite/config";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Store, Package, Plus, ArrowUpRight, TrendingUp } from "lucide-react";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { StatCard } from "@/components/dashboard/stat-card";
-import { StoreCard } from "@/components/dashboard/store-card";
+'use client'
 
-async function getDashboardData(locale: string) {
-    const { databases, account } = await createSessionClient();
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { getDashboardStats } from '@/app/actions/dashboard'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Store, Package, Plus, ArrowUpRight, TrendingUp, Loader2, DollarSign, Activity } from 'lucide-react'
+import Link from 'next/link'
+import { StatCard } from '@/components/dashboard/stat-card'
+import { StoreCard } from '@/components/dashboard/store-card'
+import { PriceHistoryChart } from '@/components/dashboard/price-history-chart'
+import { CompetitorComparisonChart } from '@/components/dashboard/competitor-comparison'
+import { SalesTrendChart } from '@/components/dashboard/sales-trend'
+import { PriceAlertsWidget } from '@/components/dashboard/price-alerts-widget'
+import { QuickActionsCard } from '@/components/dashboard/quick-actions-card'
 
-    try {
-        await account.get();
-    } catch (error) {
-        redirect(`/${locale}/auth`);
-    }
-
-    const stores = await databases.listDocuments(
-        APPWRITE_CONFIG.DATABASE_ID,
-        APPWRITE_CONFIG.COLLECTIONS.STORES,
-        []
-    );
-
-    const products = await databases.listDocuments(
-        APPWRITE_CONFIG.DATABASE_ID,
-        APPWRITE_CONFIG.COLLECTIONS.PRODUCTS,
-        []
-    );
-
-    return { stores: stores.documents, products: products.documents, totalProducts: products.total };
+interface DashboardPageProps {
+    params: Promise<{ locale: string }>
 }
 
-export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
-    const { locale } = await params;
-    const { stores, totalProducts } = await getDashboardData(locale);
+export default function DashboardPage({ params }: DashboardPageProps) {
+    const router = useRouter()
+    const [locale, setLocale] = useState('en')
+    const [isLoading, setIsLoading] = useState(true)
+    const [stores, setStores] = useState<any[]>([])
+    const [products, setProducts] = useState<any[]>([])
+
+    useEffect(() => {
+        async function init() {
+            // Get locale from params
+            const resolvedParams = await params
+            setLocale(resolvedParams.locale)
+
+            try {
+                const result = await getDashboardStats()
+
+                if (result.success) {
+                    setStores(result.stores)
+                    setProducts(result.products)
+                } else {
+                    // If unauthorized, redirect to auth
+                    if (result.error?.includes('Unauthorized') || result.error?.includes('missing scopes')) {
+                        router.push(`/${resolvedParams.locale}/auth`)
+                    } else {
+                        console.warn('Dashboard: Error fetching data:', result.error)
+                        // Continue with empty data
+                        setStores([])
+                        setProducts([])
+                    }
+                }
+                setIsLoading(false)
+            } catch (error) {
+                console.error('Dashboard: Unexpected error', error)
+                setIsLoading(false)
+            }
+        }
+
+        init()
+    }, [params, router])
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        )
+    }
+
+    const totalProducts = products.length
+    const activeStores = stores.filter(s => s.status === 'active').length
 
     return (
-        <div className="flex-1 space-y-8">
-            <div className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between md:space-y-0">
-                <div>
+        <div className="flex min-h-screen flex-col">
+            <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+                <div className="flex items-center justify-between space-y-2">
                     <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-                    <p className="text-muted-foreground">Overview of your stores and products.</p>
+                    <div className="flex items-center space-x-2">
+                        {/* Add Store button moved to Integrations page */}
+                    </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                    <Link href="/dashboard/settings">
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Store
-                        </Button>
-                    </Link>
+
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <StatCard
+                        title="Total Revenue"
+                        value="$45,231.89"
+                        description="+20.1% from last month"
+                        icon={DollarSign}
+                    />
+                    <StatCard
+                        title="Active Stores"
+                        value={activeStores.toString()}
+                        description="Currently syncing"
+                        icon={Store}
+                    />
+                    <StatCard
+                        title="Total Products"
+                        value={totalProducts.toString()}
+                        description="Being monitored"
+                        icon={Package}
+                    />
+                    <StatCard
+                        title="Active Now"
+                        value="+573"
+                        description="+201 since last hour"
+                        icon={Activity}
+                    />
                 </div>
-            </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard
-                    title="Total Stores"
-                    value={stores.length}
-                    icon={Store}
-                    description={
-                        <span className="flex items-center">
-                            <TrendingUp className="mr-1 h-3 w-3 text-green-500" />
-                            Active platforms
-                        </span>
-                    }
-                />
-                <StatCard
-                    title="Total Products"
-                    value={totalProducts}
-                    icon={Package}
-                    description="Across all stores"
-                />
-            </div>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                    <div className="col-span-4">
+                        <SalesTrendChart />
+                    </div>
+                    <div className="col-span-3">
+                        <CompetitorComparisonChart />
+                    </div>
+                </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4 hover:shadow-md transition-shadow">
-                    <CardHeader>
-                        <CardTitle>Connected Stores</CardTitle>
-                        <CardDescription>Manage your store integrations and sync status.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {stores.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-8 text-center border rounded-lg border-dashed bg-muted/50">
-                                    <Store className="h-10 w-10 text-muted-foreground mb-4" />
-                                    <h3 className="text-lg font-medium">No stores connected</h3>
-                                    <p className="text-sm text-muted-foreground max-w-sm mb-4">
-                                        Connect your Salla or Trendyol store to start monitoring prices.
-                                    </p>
-                                    <Link href="/dashboard/settings">
-                                        <Button variant="outline">Connect Store</Button>
-                                    </Link>
-                                </div>
-                            ) : (
-                                stores.map((store) => (
-                                    <StoreCard key={store.$id} store={store} />
-                                ))
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                    <QuickActionsCard locale={locale} />
+                    <PriceAlertsWidget />
+                </div>
 
-                <Card className="col-span-3 hover:shadow-md transition-shadow">
-                    <CardHeader>
-                        <CardTitle>Quick Actions</CardTitle>
-                        <CardDescription>Common tasks and shortcuts.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <Link href="/dashboard/products" className="block group">
-                            <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors">
-                                <div className="flex items-center space-x-3">
-                                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                                        <Package className="h-5 w-5" />
-                                    </div>
-                                    <span className="font-medium text-sm">View All Products</span>
-                                </div>
-                                <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                            </div>
-                        </Link>
-                        <Link href="/dashboard/settings" className="block group">
-                            <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors">
-                                <div className="flex items-center space-x-3">
-                                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                                        <Plus className="h-5 w-5" />
-                                    </div>
-                                    <span className="font-medium text-sm">Connect New Store</span>
-                                </div>
-                                <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                            </div>
-                        </Link>
-                    </CardContent>
-                </Card>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {stores.length === 0 ? (
+                        <Card className="col-span-full">
+                            <CardHeader>
+                                <CardTitle>No Stores Connected</CardTitle>
+                                <CardDescription>
+                                    Connect your first store to start monitoring competitor prices
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Link href={`/${locale}/dashboard/integrations`}>
+                                    <Button>
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Go to Integrations
+                                    </Button>
+                                </Link>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        stores.map((store) => (
+                            <StoreCard
+                                key={store.$id}
+                                store={store}
+                                locale={locale}
+                            />
+                        ))
+                    )}
+                </div>
             </div>
         </div>
-    );
+    )
 }

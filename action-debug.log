@@ -1,0 +1,12 @@
+[2025-11-20T21:49:18.751Z] [addProduct] Starting product creation for URL: https://salla.sa/debug-log-final
+[2025-11-20T21:49:19.033Z] [addProduct] User authenticated: 691d01de00220de12856
+[2025-11-20T21:49:19.034Z] [addProduct] Creating document with ID: 691f8cdf00022fab7af1
+[2025-11-20T21:49:19.336Z] [addProduct] Failed: Invalid document structure: Missing required attribute "user_id"
+[2025-11-20T21:50:41.293Z] [addProduct] Starting product creation for URL: https://salla.sa/success-product
+[2025-11-20T21:50:41.553Z] [addProduct] User authenticated: 691d01de00220de12856
+[2025-11-20T21:50:41.553Z] [addProduct] Creating document with ID: 691f8d31002296cce333
+[2025-11-20T21:50:41.840Z] [addProduct] Failed: Invalid document structure: Missing required attribute "userId"
+[2025-11-20T21:51:58.292Z] [addProduct] Starting product creation for URL: https://salla.sa/dual-id-product
+[2025-11-20T21:51:58.568Z] [addProduct] User authenticated: 691d01de00220de12856
+[2025-11-20T21:51:58.569Z] [addProduct] Creating document with ID: 691f8d7e0023925ab9fb
+[2025-11-20T21:51:58.896Z] [addProduct] Document created successfully: 691f8d7e0023925ab9fb

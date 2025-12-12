@@ -9,7 +9,27 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'salla-dev.s3.eu-central-1.amazonaws.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.salla.sa',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.salla.sa',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.dsmcdn.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.trendyol.com',
       },
     ],
   },

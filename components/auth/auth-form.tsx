@@ -8,11 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { account } from "@/lib/appwrite/client"
-import { createSession } from "@/app/[locale]/auth/actions"
-import { ID } from 'appwrite'
 import { Loader2, Sparkles } from 'lucide-react'
 import Link from 'next/link'
+import { account } from '@/lib/appwrite/client'
+import { ID } from 'appwrite'
 
 interface AuthFormProps {
     defaultTab?: "login" | "signup"
@@ -39,28 +38,48 @@ export function AuthForm({ defaultTab = "login" }: AuthFormProps) {
     const [signupEmail, setSignupEmail] = useState('')
     const [signupPassword, setSignupPassword] = useState('')
 
-    const handleLogin = async (e?: React.FormEvent) => {
-        e?.preventDefault()
+    const handleLogout = async () => {
+        try {
+            // Delete session from Appwrite
+            await account.deleteSession('current')
+        } catch (error) {
+            console.log('Error deleting Appwrite session:', error)
+        }
+
+        // Clear server-side cookie
+        const { clearSession } = await import('@/app/[locale]/auth/sync-session')
+        await clearSession()
+
+        // Clear localStorage
+        localStorage.clear()
+
+        // Refresh page
+        window.location.href = `/${locale}/auth`
+    }
+
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault()
+        console.log('handleLogin called')
         setIsLoading(true)
         setError(null)
 
         try {
-            // Clear any existing session
-            try {
-                await account.getSession('current')
-                await account.deleteSession('current')
-            } catch (e) {
-                // No existing session
-            }
-
+            console.log('Calling Appwrite login with email:', loginEmail)
+            // Use client-side Appwrite SDK to create session
             const session = await account.createEmailPasswordSession(loginEmail, loginPassword)
-            await createSession(session.secret)
+            console.log('Login successful, session created:', session.$id)
 
-            // Use window.location for reliable redirect
-            window.location.href = `/${locale}/dashboard`
-        } catch (err: any) {
-            console.error("Login error:", err)
-            setError(err.message || "Failed to login")
+            // Sync session to server-side cookie
+            const { syncSession } = await import('@/app/[locale]/auth/sync-session')
+            await syncSession(session.secret)
+            console.log('Session synced to server cookie')
+
+            // Redirect to dashboard
+            router.push(`/${locale}/dashboard`)
+        } catch (error: any) {
+            console.log('Login error:', error)
+            setError(error.message || 'Login failed')
             setIsLoading(false)
         }
     }
@@ -71,15 +90,20 @@ export function AuthForm({ defaultTab = "login" }: AuthFormProps) {
         setError(null)
 
         try {
+            // Create user account
             await account.create(ID.unique(), signupEmail, signupPassword, signupName)
-            const session = await account.createEmailPasswordSession(signupEmail, signupPassword)
-            await createSession(session.secret)
 
-            // Use window.location for reliable redirect
-            window.location.href = `/${locale}/dashboard`
-        } catch (err: any) {
-            console.error("Signup error:", err)
-            setError(err.message || "Failed to sign up")
+            // Log them in immediately
+            const session = await account.createEmailPasswordSession(signupEmail, signupPassword)
+
+            // Sync session to server-side cookie
+            const { syncSession } = await import('@/app/[locale]/auth/sync-session')
+            await syncSession(session.secret)
+
+            // Redirect to dashboard
+            router.push(`/${locale}/dashboard`)
+        } catch (error: any) {
+            setError(error.message || 'Signup failed')
             setIsLoading(false)
         }
     }
@@ -93,28 +117,21 @@ export function AuthForm({ defaultTab = "login" }: AuthFormProps) {
         setError(null)
 
         try {
-            // Clear any existing session
-            try {
-                await account.getSession('current')
-                await account.deleteSession('current')
-            } catch (e) {
-                // No existing session
-            }
-
             const session = await account.createEmailPasswordSession(demo.email, demo.password)
-            await createSession(session.secret)
 
-            // Use window.location for reliable redirect
-            window.location.href = `/${locale}/dashboard`
-        } catch (err: any) {
-            console.error("Demo login error:", err)
+            // Sync session to server-side cookie
+            const { syncSession } = await import('@/app/[locale]/auth/sync-session')
+            await syncSession(session.secret)
 
-            if (err.code === 401 || err.message.includes('Invalid credentials')) {
+            router.push(`/${locale}/dashboard`)
+        } catch (error: any) {
+            const errorMessage = error.message || error.toString()
+            if (errorMessage.includes('Invalid credentials') || errorMessage.includes('user')) {
                 setError(`${demo.name} hasn't been created yet. Please sign up with ${demo.email} first, or use Demo Account 1.`)
-            } else if (err.code === 429 || err.message.includes('Rate limit')) {
-                setError('Too many login attempts. Please wait a few minutes and try again, or use the other demo account.')
+            } else if (errorMessage.includes('Rate limit') || errorMessage.includes('rate')) {
+                setError('Too many login attempts. Please wait a few minutes and try again.')
             } else {
-                setError(err.message || "Failed to login with demo account")
+                setError(errorMessage)
             }
             setIsLoading(false)
         }
@@ -128,8 +145,20 @@ export function AuthForm({ defaultTab = "login" }: AuthFormProps) {
 
             <Card className="w-full max-w-md border-border/50 shadow-xl backdrop-blur-xl bg-background/60">
                 <CardHeader className="text-center space-y-2">
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                        <Sparkles className="h-6 w-6 text-primary" />
+                    <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                                <Sparkles className="h-6 w-6 text-primary" />
+                            </div>
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleLogout}
+                            className="text-xs"
+                        >
+                            Clear Session
+                        </Button>
                     </div>
                     <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
                     <CardDescription className="text-base">

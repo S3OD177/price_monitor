@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 import {
     Dialog,
     DialogContent,
@@ -22,7 +23,7 @@ import { sallaApi } from "@/lib/api/salla"
 import { trendyolApi } from "@/lib/api/trendyol"
 
 interface ConnectStoreDialogProps {
-    onConnect: (store: any) => void
+    onConnect?: (store: any) => void
 }
 
 export function ConnectStoreDialog({ onConnect }: ConnectStoreDialogProps) {
@@ -31,6 +32,7 @@ export function ConnectStoreDialog({ onConnect }: ConnectStoreDialogProps) {
     const [platform, setPlatform] = useState<string>("")
     const [apiKey, setApiKey] = useState("")
     const [apiSecret, setApiSecret] = useState("")
+    const router = useRouter()
 
     const handleConnect = async () => {
         setLoading(true)
@@ -43,7 +45,11 @@ export function ConnectStoreDialog({ onConnect }: ConnectStoreDialogProps) {
             }
 
             if (store) {
-                onConnect(store)
+                if (onConnect) {
+                    onConnect(store)
+                } else {
+                    router.refresh()
+                }
                 setOpen(false)
                 // Reset form
                 setPlatform("")

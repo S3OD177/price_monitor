@@ -36,9 +36,10 @@ interface Product {
 
 interface ProductsTableProps {
     products: Product[]
+    locale: string
 }
 
-export function ProductsTable({ products }: ProductsTableProps) {
+export function ProductsTable({ products, locale }: ProductsTableProps) {
     if (products.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-12 text-center border rounded-lg border-dashed bg-muted/50">
@@ -84,9 +85,11 @@ export function ProductsTable({ products }: ProductsTableProps) {
                                 )}
                             </TableCell>
                             <TableCell className="font-medium">
-                                <div className="max-w-[200px] truncate" title={product.name}>
-                                    {product.name}
-                                </div>
+                                <Link href={`/${locale}/dashboard/products/${product.$id}`} className="hover:underline">
+                                    <div className="max-w-[200px] truncate" title={product.name}>
+                                        {product.name}
+                                    </div>
+                                </Link>
                             </TableCell>
                             <TableCell className="text-muted-foreground">{product.sku || '-'}</TableCell>
                             <TableCell>
@@ -112,7 +115,7 @@ export function ProductsTable({ products }: ProductsTableProps) {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                        <Link href={`/dashboard/products/${product.$id}`}>
+                                        <Link href={`/${locale}/dashboard/products/${product.$id}`}>
                                             <DropdownMenuItem>
                                                 View Details
                                             </DropdownMenuItem>
@@ -125,10 +128,6 @@ export function ProductsTable({ products }: ProductsTableProps) {
                                                 </DropdownMenuItem>
                                             </a>
                                         )}
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem className="text-destructive">
-                                            Delete
-                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </TableCell>

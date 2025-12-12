@@ -26,9 +26,12 @@ import {
     Settings,
     Store,
     LogOut,
-    Puzzle
+    Puzzle,
+    FileText,
+    User
 } from 'lucide-react';
 import { account } from '@/lib/appwrite/client';
+import { ModeToggle } from '@/components/mode-toggle';
 
 const sidebarItems = [
     {
@@ -45,6 +48,21 @@ const sidebarItems = [
         title: 'Integrations',
         href: '/dashboard/integrations',
         icon: Puzzle,
+    },
+    {
+        title: 'Reports',
+        href: '/dashboard/reports',
+        icon: FileText,
+    },
+    {
+        title: 'Alerts',
+        href: '/dashboard/alerts',
+        icon: Bell,
+    },
+    {
+        title: 'Account',
+        href: '/dashboard/account',
+        icon: User,
     },
     {
         title: 'Settings',
@@ -132,6 +150,9 @@ export function Header() {
                         />
                     </div>
                 </form>
+            </div>
+            <div className="mr-2">
+                <ModeToggle />
             </div>
             <Button variant="ghost" size="icon" className="relative hidden sm:flex">
                 <Bell className="h-5 w-5" />
